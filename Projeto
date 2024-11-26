@@ -1,0 +1,346 @@
+using System;
+using System.Diagnostics;
+using System.Linq;
+
+public class SortAlgorithms
+{
+    public static int Comparisons { get; private set; }
+    public static int Swaps { get; private set; }
+
+    // Resetando os contadores de comparações e trocas
+    public static void ResetCounters()
+    {
+        Comparisons = 0;
+        Swaps = 0;
+    }
+
+    // Geradores de arrays para os diferentes casos
+    public static int[] GenerateRandomArray(int size)
+    {
+        Random rand = new Random();
+        return Enumerable.Range(1, size).OrderBy(x => rand.Next()).ToArray();
+    }
+
+    public static int[] GenerateAscendingArray(int size)
+    {
+        return Enumerable.Range(1, size).ToArray();
+    }
+
+    public static int[] GenerateDescendingArray(int size)
+    {
+        return Enumerable.Range(1, size).OrderByDescending(x => x).ToArray();
+    }
+
+    // Algoritmo Bubble Sort
+    public static void BubbleSort(int[] arr)
+    {
+        int n = arr.Length;
+        for (int i = 0; i < n - 1; i++)
+        {
+            for (int j = 0; j < n - i - 1; j++)
+            {
+                Comparisons++;
+                if (arr[j] > arr[j + 1])
+                {
+                    Swaps++;
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
+            }
+        }
+    }
+
+    // Improved Bubble Sort
+    public static void ImprovedBubbleSort(int[] arr)
+    {
+        int n = arr.Length;
+        bool swapped;
+        for (int i = 0; i < n - 1; i++)
+        {
+            swapped = false;
+            for (int j = 0; j < n - i - 1; j++)
+            {
+                Comparisons++;
+                if (arr[j] > arr[j + 1])
+                {
+                    Swaps++;
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                    swapped = true;
+                }
+            }
+            if (!swapped) break;
+        }
+    }
+
+    // Insertion Sort
+    public static void InsertionSort(int[] arr)
+    {
+        int n = arr.Length;
+        for (int i = 1; i < n; i++)
+        {
+            int key = arr[i];
+            int j = i - 1;
+            while (j >= 0 && arr[j] > key)
+            {
+                Comparisons++;
+                arr[j + 1] = arr[j];
+                j--;
+                Swaps++;
+            }
+            arr[j + 1] = key;
+        }
+    }
+
+    // Selection Sort
+    public static void SelectionSort(int[] arr)
+    {
+        int n = arr.Length;
+        for (int i = 0; i < n - 1; i++)
+        {
+            int minIdx = i;
+            for (int j = i + 1; j < n; j++)
+            {
+                Comparisons++;
+                if (arr[j] < arr[minIdx])
+                {
+                    minIdx = j;
+                }
+            }
+            if (minIdx != i)
+            {
+                Swaps++;
+                int temp = arr[i];
+                arr[i] = arr[minIdx];
+                arr[minIdx] = temp;
+            }
+        }
+    }
+
+    // Merge Sort
+    public static void MergeSort(int[] arr)
+    {
+        if (arr.Length <= 1) return;
+        int mid = arr.Length / 2;
+        int[] left = arr.Take(mid).ToArray();
+        int[] right = arr.Skip(mid).ToArray();
+        MergeSort(left);
+        MergeSort(right);
+        Merge(arr, left, right);
+    }
+
+    private static void Merge(int[] arr, int[] left, int[] right)
+    {
+        int i = 0, j = 0, k = 0;
+        while (i < left.Length && j < right.Length)
+        {
+            Comparisons++;
+            if (left[i] <= right[j])
+            {
+                arr[k++] = left[i++];
+            }
+            else
+            {
+                arr[k++] = right[j++];
+            }
+        }
+        while (i < left.Length) arr[k++] = left[i++];
+        while (j < right.Length) arr[k++] = right[j++];
+    }
+
+    // Quick Sort
+    public static void QuickSort(int[] arr)
+    {
+        QuickSortHelper(arr, 0, arr.Length - 1);
+    }
+
+    private static void QuickSortHelper(int[] arr, int low, int high)
+    {
+        if (low < high)
+        {
+            int pi = Partition(arr, low, high);
+            QuickSortHelper(arr, low, pi - 1);
+            QuickSortHelper(arr, pi + 1, high);
+        }
+    }
+
+    private static int Partition(int[] arr, int low, int high)
+    {
+        int pivot = arr[high];
+        int i = (low - 1);
+        for (int j = low; j < high; j++)
+        {
+            Comparisons++;
+            if (arr[j] <= pivot)
+            {
+                i++;
+                Swaps++;
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+        }
+        Swaps++;
+        int temp1 = arr[i + 1];
+        arr[i + 1] = arr[high];
+        arr[high] = temp1;
+        return i + 1;
+    }
+
+    // Heap Sort
+    public static void HeapSort(int[] arr)
+    {
+        int n = arr.Length;
+        for (int i = n / 2 - 1; i >= 0; i--)
+        {
+            Heapify(arr, n, i);
+        }
+        for (int i = n - 1; i >= 0; i--)
+        {
+            Swaps++;
+            int temp = arr[0];
+            arr[0] = arr[i];
+            arr[i] = temp;
+            Heapify(arr, i, 0);
+        }
+    }
+
+    private static void Heapify(int[] arr, int n, int i)
+    {
+        int largest = i;
+        int left = 2 * i + 1;
+        int right = 2 * i + 2;
+        if (left < n && arr[left] > arr[largest])
+        {
+            largest = left;
+        }
+        if (right < n && arr[right] > arr[largest])
+        {
+            largest = right;
+        }
+        if (largest != i)
+        {
+            Swaps++;
+            int temp = arr[i];
+            arr[i] = arr[largest];
+            arr[largest] = temp;
+            Heapify(arr, n, largest);
+        }
+    }
+
+    // Counting Sort
+    public static void CountingSort(int[] arr)
+    {
+        int max = arr.Max();
+        int[] count = new int[max + 1];
+        foreach (int num in arr)
+        {
+            count[num]++;
+        }
+        int j = 0;
+        for (int i = 0; i < count.Length; i++)
+        {
+            while (count[i] > 0)
+            {
+                arr[j++] = i;
+                count[i]--;
+                Swaps++;
+            }
+        }
+    }
+
+    // Radix Sort
+    public static void RadixSort(int[] arr)
+    {
+        int max = arr.Max();
+        for (int exp = 1; max / exp > 0; exp *= 10)
+        {
+            CountingSortForRadix(arr, exp);
+        }
+    }
+
+    private static void CountingSortForRadix(int[] arr, int exp)
+    {
+        int[] output = new int[arr.Length];
+        int[] count = new int[10];
+        for (int i = 0; i < arr.Length; i++)
+        {
+            count[(arr[i] / exp) % 10]++;
+        }
+        for (int i = 1; i < 10; i++)
+        {
+            count[i] += count[i - 1];
+        }
+        for (int i = arr.Length - 1; i >= 0; i--)
+        {
+            output[count[(arr[i] / exp) % 10] - 1] = arr[i];
+            count[(arr[i] / exp) % 10]--;
+            Swaps++;
+        }
+        Array.Copy(output, arr, arr.Length);
+    }
+}
+
+public class Program
+{
+    public static void Main()
+    {
+        int[] sizes = { 1000, 10000, 100000 };
+        Action<int[]>[] algorithms = {
+            SortAlgorithms.BubbleSort,
+            SortAlgorithms.ImprovedBubbleSort,
+            SortAlgorithms.InsertionSort,
+            SortAlgorithms.SelectionSort,
+            SortAlgorithms.MergeSort,
+            SortAlgorithms.QuickSort,
+            SortAlgorithms.HeapSort,
+            SortAlgorithms.CountingSort,
+            SortAlgorithms.RadixSort
+        };
+        string[] algorithmNames = {
+            "Bubble Sort",
+            "Improved Bubble Sort",
+            "Insertion Sort",
+            "Selection Sort",
+            "Merge Sort",
+            "Quick Sort",
+            "Heap Sort",
+            "Counting Sort",
+            "Radix Sort"
+        };
+
+        foreach (int size in sizes)
+        {
+            Console.WriteLine($"--- Teste com {size} elementos ---");
+            int[] bestCaseArray = SortAlgorithms.GenerateAscendingArray(size);
+            int[] averageCaseArray = SortAlgorithms.GenerateRandomArray(size);
+            int[] worstCaseArray = SortAlgorithms.GenerateDescendingArray(size);
+
+            for (int i = 0; i < algorithms.Length; i++)
+            {
+                Console.WriteLine($"--- {algorithmNames[i]} ---");
+
+                TestAlgorithm(algorithms[i], (int[])bestCaseArray.Clone(), "Melhor Caso");
+                TestAlgorithm(algorithms[i], (int[])averageCaseArray.Clone(), "Caso Médio");
+                TestAlgorithm(algorithms[i], (int[])worstCaseArray.Clone(), "Pior Caso");
+
+                Console.WriteLine();
+            }
+        }
+    }
+
+    public static void TestAlgorithm(Action<int[]> sortMethod, int[] arr, string caseName)
+    {
+        SortAlgorithms.ResetCounters();
+        var stopwatch = Stopwatch.StartNew();
+        sortMethod(arr);
+        stopwatch.Stop();
+
+        Console.WriteLine($"{caseName}:");
+        Console.WriteLine($"  Tempo: {stopwatch.ElapsedMilliseconds}ms");
+        Console.WriteLine($"  Comparações: {SortAlgorithms.Comparisons}");
+        Console.WriteLine($"  Trocas: {SortAlgorithms.Swaps}");
+    }
+}
